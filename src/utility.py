@@ -1,11 +1,25 @@
+from __future__ import annotations
+from typing import Union, Callable, Literal, Any
+from dataclasses import dataclass
+from math import log
 
-"""
-#######################
-Utility type and utils
-(probably the worst
-part of the code)
-#######################
-"""
+from networkx import DiGraph, MultiDiGraph
+
+from src.types import (
+	GraphType,
+	AgentID,
+	AgentType_Name,
+	AgentType_Value_Discrete,
+	AgentType_Value_Continuous,
+	AgentType_Vector,
+	AgentType_Domain,
+	Utility_Criterion,
+	Utility_Scalarized,
+	Utility_Criterion_AgentID,
+	Utility_Criterion_Discrete,
+	Utility_Criterion_Continuous,
+)
+from src.config_defaults import DEFAULT_BAD_UTILITY
 
 #For all the below, if None, does not constrain
 # Absolute refers to the count of valid neighbors
@@ -172,7 +186,7 @@ def get_default_utility_criterion_function(utility_type : UtilityType) -> Utilit
 			context   : GraphType,
 		) -> float:
 			social_neighbors = context.neighbors(self_id)
-			if isinstance(context, nx.DiGraph) or isinstance(context, nx.MultiDiGraph):
+			if isinstance(context, DiGraph) or isinstance(context, MultiDiGraph):
 				social_relationships = context.out_edges(self_id)
 			else:
 				social_relationships = context.edges(self_id)

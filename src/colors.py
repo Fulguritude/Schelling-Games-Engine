@@ -1,6 +1,8 @@
 from typing import Literal, get_args
 
-from . types import AgentType_Domain, AgentType_ColorMap
+from matplotlib.pyplot import get_cmap   #type:ignore
+
+from src.types import AgentType_Domain, AgentType_ColorMap
 
 
 
@@ -72,7 +74,7 @@ def get_default_colormap(
 				for i, value in enumerate(values)
 			}
 		else:
-			result[name] = plt.get_cmap("plasma")  #type:ignore
+			result[name] = get_cmap("plasma")
 	return result
 
 

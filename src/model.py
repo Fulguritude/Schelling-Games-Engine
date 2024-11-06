@@ -6,7 +6,7 @@ import random
 from matplotlib.pyplot import Figure, subplots
 from networkx          import draw
 
-from .types import (
+from src.types import (
 	GraphType,
 	GraphType_Literal,
 	NodeID,
@@ -28,21 +28,21 @@ from .types import (
 	Utility_Scalarized,
 	MovementMode,
 )
-from .agent         import Agent
-from .topology      import (
+from src.topology import (
 	Topology,
 	TopologyType,
 	TopologyConfig_Generated,
 )
-from .distributions import (
+from src.distributions import (
 	AgentType_Distributions,
 	DistributionGenerator,
 	DomainDistributions,
 	distribution_type_to_generator,
 )
-from .utility         import get_default_utility_scalarized_function
-from .colors          import get_default_colormap
-from .config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI
+from src.agent           import Agent
+from src.utility         import get_default_utility_scalarized_function
+from src.colors          import get_default_colormap
+from src.config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI
 
 """
 #######################

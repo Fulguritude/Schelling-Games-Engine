@@ -20,8 +20,8 @@ I tried to emphasize three things above all:
 ## Installation & execution
 
 Dependencies: `pip3 install pillow networkx kivy matplotlib kivy_garden.matplotlib`
-Running: `python3 main.py`.
-Configuration happens through editing the code for now, not via terminal, nor config files, nor via the app.
+Running: `python3 -m src.main`.
+Configuration happens through editing the code for now; not via terminal, nor config files, nor via the app.
 
 ## Other info
 
@@ -79,7 +79,9 @@ Also, Hide/Show labels display sometimes doesn't show all labels.
 
 Finally, there's a small known bug where the size of graph figures that have been displayed is affected by Kivy, and stays affected when exported.
 
+I haven't managed to cleanly remove Kivy's debug output, either.
+
 
 ## Contributing
 
-PRs and issues are welcome. I'd like this to be useful for scientific purposes (even if only to build conjectures probabilistically). But for me to further this work, it'd probably need to garner any modicum of interest.
+PRs, comments and issues are welcome. I'd ideally like this to be useful for scientific purposes (even if only to build conjectures probabilistically), but for me to further this work, it'd probably need to garner any modicum of interest.

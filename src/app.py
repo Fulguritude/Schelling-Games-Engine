@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Callable, Iterable, Literal
 from os.path import sep
 from time import sleep
 
@@ -12,10 +13,10 @@ from kivy.uix.label         import Label
 from kivy_garden.matplotlib import FigureCanvasKivyAgg
 
 
-from .types           import AgentType_Name
-from .model           import SchellingModel
-from .utils           import combine_img_plots, export_gif_from_pngs
-from .config_defaults import (
+from src.types           import AgentType_Name
+from src.model           import SchellingModel
+from src.utils           import combine_img_plots, export_gif_from_pngs
+from src.config_defaults import (
 	TMP_IMG_DIR,
 	OUT_IMG_DIR,
 	DEFAULT_FIGSIZE,
@@ -44,14 +45,35 @@ class MainWindow(BoxLayout):
 	# Export utils
 
 	@staticmethod
-	def get_export_filename(iter_step: int, type_name: AgentType_Name) -> str:
-		return f"{TMP_IMG_DIR}{sep}schelling_{type_name}_{iter_step}.png"
+	def get_export_path(
+		extension : Literal["png", "gif"],
+		iter_step : int            | None = None,
+		type_name : AgentType_Name | None = None,
+		dir_path  : str            | None = None,
+	) -> str:
+		safe_iter_step = f"_{iter_step:04}" if iter_step is not None else ""
+		safe_type_name = f"_{type_name}" if type_name is not None else "_alltypes"
+		safe_dir_path = dir_path + sep if dir_path is not None else ""
+		return f"{safe_dir_path}schelling{safe_type_name}{safe_iter_step}.{extension}"
 
-	def export_png_plot(self, fig: Figure, filename: str) -> None:
+	def export_png_plot(self,
+		fig       : Figure,
+		iter_step : int            | None = None,
+		type_name : AgentType_Name | None = None,
+		dir_path  : str            | None = None,
+	) -> str:
 		fig.set_size_inches(DEFAULT_FIGSIZE, forward = True)  #type:ignore
-		fig.savefig(f"{OUT_IMG_DIR}{sep}{filename}", bbox_inches='tight', pad_inches = DEFAULT_PADDING)
+		fig.tight_layout()
+		filepath = MainWindow.get_export_path("png", iter_step, type_name, dir_path)
+		fig.savefig(f"{filepath}", bbox_inches='tight', pad_inches = DEFAULT_PADDING)
+		return filepath
 
-	def export_png_plot_at_iter(self, iter_step: int, type_name: AgentType_Name) -> str:
+	def export_png_plot_at_iter(
+		self,
+		iter_step : int,
+		type_name : AgentType_Name,
+		is_tmp    : bool          = True,
+	) -> str:
 		fig = self.model.get_figure(
 			iter_step   = iter_step,
 			type_name   = type_name,
@@ -59,20 +81,24 @@ class MainWindow(BoxLayout):
 			with_labels = self.with_labels,
 			with_edges  = self.with_edges,
 		)
-		fig_name = MainWindow.get_export_filename(iter_step, type_name)
-		self.export_png_plot(fig, fig_name)
-		return fig_name
+		dir_path = TMP_IMG_DIR if is_tmp else OUT_IMG_DIR
+		result = self.export_png_plot(fig, iter_step, type_name, dir_path)
+		return result
 
-	def export_png_all_plots_at_iter(self, iter_step: int) -> str:
+	def export_png_all_plots_at_iter(
+		self,
+		iter_step : int,
+		is_tmp    : bool = True,
+	) -> str:
 		fig_paths = []
 		for type_name in self.model.domain.keys():
 			fig_path = self.export_png_plot_at_iter(iter_step, type_name)
 			fig_paths.append(fig_path)
-		# combine figures into a single plot
+		dir_path = TMP_IMG_DIR if is_tmp else OUT_IMG_DIR
+		filepath = MainWindow.get_export_path("png", iter_step, None, dir_path)
 		result_fig = combine_img_plots(fig_paths)
-		fig_name = f"{TMP_IMG_DIR}{sep}schelling_all_{iter_step}.png"
-		result_fig.savefig(fig_name, bbox_inches='tight', pad_inches = DEFAULT_PADDING)
-		return fig_name
+		result_fig.savefig(filepath, bbox_inches='tight', pad_inches = DEFAULT_PADDING)
+		return filepath
 
 	def export_gif_plot(self, type_name: AgentType_Name) -> str:
 		fig_paths = []
@@ -81,44 +107,31 @@ class MainWindow(BoxLayout):
 			sleep(0.01)
 			fig_path = self.export_png_plot_at_iter(iter_step, type_name)
 			fig_paths.append(fig_path)
-		gif_name = f"schelling_{type_name}.gif"
-		export_gif_from_pngs(fig_paths, gif_name)
-		return gif_name
+		gif_path = MainWindow.get_export_path("gif", None, type_name, OUT_IMG_DIR)
+		export_gif_from_pngs(fig_paths, gif_path)
+		return gif_path
 
 	def export_gif_all_plots(self) -> str:
 		fig_paths = []
 		for iter_step in range(self.model.max_iter):
 			print(f"Building {iter_step} images for gif...")
 			sleep(0.01)
-			fig_path = self.export_png_all_plots_at_iter(iter_step)
+			fig_path = self.export_png_all_plots_at_iter(iter_step, True)
 			fig_paths.append(fig_path)
-		gif_name = f"schelling_all.gif"
-		export_gif_from_pngs(fig_paths, gif_name)
-		return gif_name
+		gif_path = MainWindow.get_export_path("gif", None, None, OUT_IMG_DIR)
+		export_gif_from_pngs(fig_paths, gif_path)
+		return gif_path
+
 
 	# Event Bindings
-
 	def on_export_png(self, instance) -> None:
 		iter_step = self.get_iter_step()
 		type_name = self.get_selected_type()
-		self.export_png_plot_at_iter(iter_step, type_name)
+		self.export_png_plot_at_iter(iter_step, type_name, is_tmp = False)
 
 	def on_export_png_all(self, instance) -> None:
-		fig_paths = []
-		for type_name in self.model.domain.keys():
-			fig = self.model.get_figure(
-				iter_step   = self.get_iter_step(),
-				type_name   = type_name,
-				nodes_pos   = None,
-				with_labels = self.with_labels,
-				with_edges  = self.with_edges,
-			)
-			fig_name = f"{TMP_IMG_DIR}{sep}schelling_{type_name}.png"
-			fig.savefig(fig_name, bbox_inches='tight', pad_inches = DEFAULT_PADDING)
-			fig_paths.append(fig_name)
-		# combine figures into a single plot
-		result_fig = combine_img_plots(fig_paths)
-		result_fig.savefig(f"schelling_all.png", bbox_inches='tight', pad_inches = DEFAULT_PADDING)
+		iter_step = self.get_iter_step()
+		self.export_png_all_plots_at_iter(iter_step, is_tmp = False)
 
 	def on_export_gif(self, instance) -> None:
 		type_name = self.get_selected_type()
@@ -126,8 +139,6 @@ class MainWindow(BoxLayout):
 
 	def on_export_gif_all(self, instance) -> None:
 		self.export_gif_all_plots()
-
-
 
 	def on_iter_value_change(self, instance, value):
 		self.slider_ilabel.text = f"Iteration step: {int(value)}"
@@ -150,8 +161,8 @@ class MainWindow(BoxLayout):
 		instance.state = "down"
 		self.render()
 
-	# Dashboard builders
 
+	# Dashboard builders
 	@staticmethod
 	def build_radiobutton(
 		labels     : Iterable[str],
@@ -240,6 +251,7 @@ class MainWindow(BoxLayout):
 	def get_selected_type(self) -> AgentType_Name:
 		result = [button.text for button in self.type_radio.children if button.state == "down"][0]
 		return result
+
 
 
 class SchellingApp(App):

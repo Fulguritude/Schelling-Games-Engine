@@ -6,7 +6,7 @@ from os.path import exists
 import random
 from math import log
 
-from .types import (
+from src.types import (
 	AgentType_Domain,
 	AgentType_Vector,
 	AgentType_ColorMap,
@@ -14,25 +14,26 @@ from .types import (
 	AgentType_Constraints,
 	Utility_Scalarized,
 )
-from .topology import (
+from src.topology import (
 	Topology_GridDiagonals,
 )
-from .model import (
+from src.model import (
 	SchellingModelConfig_Random,
 	SchellingModel,
 )
-from .distributions import (
+from src.distributions import (
 	AgentType_Distributions,
 	Distribution_Choice_Categories,
 	Distribution_CustomDiscrete,
 )
-from .config_defaults import (
+from src.config_defaults import (
 	MAX_ITERATIONS,
 	OUT_IMG_DIR,
 	TMP_IMG_DIR,
 	SEED,
 )
-from .app import SchellingApp
+from src.utils import set_nice_level
+from src.app   import SchellingApp
 
 
 
@@ -166,6 +167,7 @@ if __name__ == '__main__':
 	if not exists(TMP_IMG_DIR):
 		mkdir(TMP_IMG_DIR)
 
+	set_nice_level(19)
 	if SEED is not None:
 		random.seed(SEED)
 	model1 = example_simple_game()

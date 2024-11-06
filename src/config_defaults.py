@@ -10,8 +10,8 @@ DEFAULT_BAD_UTILITY = -1.0
 
 MAX_ITERATIONS = 200
 
-OUT_IMG_DIR = f"..{sep}out_images"
-TMP_IMG_DIR = f"..{sep}out_images{sep}tmp_images"
+OUT_IMG_DIR = f"out_images"
+TMP_IMG_DIR = f"out_images{sep}tmp_images"
 
 SEED = 0
 

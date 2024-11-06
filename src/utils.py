@@ -1,7 +1,12 @@
 from matplotlib.pyplot import Figure, subplots, imread
 from PIL import Image
+import os
+import platform
 
-from .config_defaults import DEFAULT_GIF_FRAME_DURATION
+from src.config_defaults import DEFAULT_GIF_FRAME_DURATION
+
+
+
 
 def combine_img_plots(fig_paths: list[str]) -> Figure:
 	result_fig, axes = subplots(1, len(fig_paths))
@@ -10,6 +15,7 @@ def combine_img_plots(fig_paths: list[str]) -> Figure:
 		ax.imshow(img)
 		ax.axis('off')
 	return result_fig
+
 
 def export_gif_from_pngs(
 	png_paths    : list[str],
@@ -24,3 +30,14 @@ def export_gif_from_pngs(
 		append_images = images[1:], 
 		duration      = duration,
 	)
+
+
+def set_nice_level(level):
+	if platform.system() in ["Linux", "Darwin"]:
+		try:
+			os.nice(level)
+			print(f"Set process niceness level to {level}")
+		except PermissionError:
+			print("Permission denied: Unable to set niceness level. Try running with appropriate privileges.")
+	else:
+		print(f"os.nice() is not supported on this operating system ({platform.system()}).")

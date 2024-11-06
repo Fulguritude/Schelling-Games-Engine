@@ -3,7 +3,7 @@ from typing import Union, Callable
 from dataclasses import dataclass
 import random
 
-from .types import (
+from src.types import (
 	AgentType_Name,
 	AgentType_Value_Discrete,
 	AgentType_Value_Continuous,

@@ -1,8 +1,8 @@
 from __future__ import annotations
-from typing import Any, Literal
+from typing import Any, Literal, TYPE_CHECKING
 import random
 
-from .types import (
+from src.types import (
 	Position,
 	NodeID,
 	AgentID,
@@ -12,14 +12,11 @@ from .types import (
 	AgentType_Nature,
 	MovementMode,
 )
-from .model import SchellingModel
-from .config_defaults import DEFAULT_HAPPINESS
+from src.config_defaults import DEFAULT_HAPPINESS
+if TYPE_CHECKING:
+	from src.model import SchellingModel
 
-"""
-#######################
-Agent class and utils
-#######################
-"""
+
 
 class Agent:
 	def __init__(self,
