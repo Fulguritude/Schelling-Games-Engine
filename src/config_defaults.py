@@ -19,7 +19,6 @@ DEFAULT_AGENT_NATURES : AgentType_NatureProportions = {
 OUT_IMG_DIR = f"out_images"
 TMP_IMG_DIR = f"out_images{sep}tmp_images"
 
-DEFAULT_ANTILAG_SLEEP = 0.3
+DEFAULT_ANTILAG_SLEEP = 0.01
 
 SEED = 0
-

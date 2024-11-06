@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 from os import mkdir
 from os.path import exists
@@ -135,7 +133,7 @@ def example_complex_game() -> SchellingModel:
 		n_agents      = agent_amount,
 		move_mode     = "jump",
 		agent_natures = DEFAULT_AGENT_NATURES,
-		happiness     = 0.5,
+		happiness     = 1.5,
 		domain        = domain_race_religion_income,
 		constraints   = constraints_race_religion_income,
 		utility       = same_race_and_religion_above_all,
