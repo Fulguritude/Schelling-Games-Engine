@@ -4,18 +4,18 @@
 
 A repo containing an engine, and a UI display, for Schelling games. It's made so that it's easy to configure specific games, even quite custom ones. It runs with Python >= 3.10
 
-Schelling games are 0-player games used in a bunch fields of related to both computer science and economics (algorithmic social choice). They were originally developped as a model for how segregation can emerge from a tolerant society. A phenomenal explainer can be found here: https://ncase.me/polygons/.
+Schelling games are 0-player games used in a few fields of related to both computer science and economics (algorithmic social choice, resource allocation, etc). They were originally developped as a model for how segregation can emerge from a tolerant society. A phenomenal (and adorable) explainer can be found here: https://ncase.me/polygons/.
 
 Where our work goes further is by considering the multiple extensions of the model that can be found in the literature.
 
 ## Original goal
 
-I like agent-based models, and the interaction of discrete and continuous mathematics. I found this subject interesting. I did this over a couple of days.
+I like agent-based models. I also like the interaction of discrete and continuous mathematics. I found this subject interesting. I did this over a couple of days.
 
-I tried to emphasize two things above all:
-- make my code as configurable as possible
+I tried to emphasize three things above all:
 - make the code modular to reinforce composability
-
+- make my code as configurable as possible
+- not sacrifice semantic type-hinting
 
 ## Installation & execution
 
@@ -53,7 +53,7 @@ Agents are given a vector of types, which can be both discrete (categorical) and
 
 You can select a distribution for each of an types from a bunch of defaults, or add custom distributions. This includes uniform, choice, exponential, etc.
 
-#### utilities
+#### Utilities
 
 I've implemented a few utility functions, including absolute count, ratio, and a few others; with configurable weights and thresholds. I've also left options to leave way for social games by providing a graph (or any context argument, really) to utility functions, but haven't tested it.
 
@@ -78,3 +78,8 @@ The overall pipeline has been thoroughly tested, but a lot of the optional featu
 Also, Hide/Show labels display sometimes doesn't show all labels.
 
 Finally, there's a small known bug where the size of graph figures that have been displayed is affected by Kivy, and stays affected when exported.
+
+
+## Contributing
+
+PRs and issues are welcome. I'd like this to be useful for scientific purposes (even if only to build conjectures probabilistically). But for me to further this work, it'd probably need to garner any modicum of interest.
