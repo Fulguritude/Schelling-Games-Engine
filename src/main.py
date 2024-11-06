@@ -10,7 +10,6 @@ from src.types import (
 	AgentType_Domain,
 	AgentType_Vector,
 	AgentType_ColorMap,
-	AgentType_NatureProportions,
 	AgentType_Constraints,
 	Utility_Scalarized,
 )
@@ -27,6 +26,7 @@ from src.distributions import (
 	Distribution_CustomDiscrete,
 )
 from src.config_defaults import (
+	DEFAULT_AGENT_NATURES,
 	MAX_ITERATIONS,
 	OUT_IMG_DIR,
 	TMP_IMG_DIR,
@@ -38,54 +38,48 @@ from src.app   import SchellingApp
 
 
 def example_simple_game() -> SchellingModel:
-	GRID_TOPO_DIM     = (20, 20)
-	AGENT_AMOUNT      = 300
-	DEFAULT_HAPPINESS = 0.5
-	DOMAIN_RACE_RELIGION_INCOME : AgentType_Domain = {
+	grid_topo_dim     = (20, 20)
+	agent_amount      = 300
+	domain_race_religion_income : AgentType_Domain = {
 		"race"     : ["white", "black"],
 	}
-	COLORMAP_RACE_RELIGION : AgentType_ColorMap = {
+	colormap_race : AgentType_ColorMap = {
 		"race" : {
 			"white" : "pink",
 			"black" : "brown",
 		},
 	}
-	DISTRIBUTIONS_RACE_RELIGION_INCOME : AgentType_Distributions = {
+	distribution_race : AgentType_Distributions = {
 		"race"     : Distribution_Choice_Categories(["white", "black"]),
 	}
-	AGENT_NATURES : AgentType_NatureProportions = {
-		"random"   : 0.,
-		"stubborn" : 0.,
-		"strategic": 1.,
-	}
-	CONSTRAINTS_RACE_RELIGION_INCOME : AgentType_Constraints | None = None
-	UTILITY_RACE_RELIGION_INCOME     : Utility_Scalarized    | None = None
+	constraints_race_religion_income : AgentType_Constraints | None = None
+	utility_race_religion_income     : Utility_Scalarized    | None = None
 	model_config = SchellingModelConfig_Random(
-		topology      = ("Graph", Topology_GridDiagonals(GRID_TOPO_DIM)),
-		n_agents      = AGENT_AMOUNT,
+		topology      = ("Graph", Topology_GridDiagonals(grid_topo_dim)),
+		n_agents      = agent_amount,
 		move_mode     = "jump",
-		agent_natures = AGENT_NATURES,
-		happiness     = DEFAULT_HAPPINESS,
-		domain        = DOMAIN_RACE_RELIGION_INCOME,
-		constraints   = CONSTRAINTS_RACE_RELIGION_INCOME,
-		utility       = UTILITY_RACE_RELIGION_INCOME,
-		distributions = DISTRIBUTIONS_RACE_RELIGION_INCOME,
+		agent_natures = DEFAULT_AGENT_NATURES,
+		happiness     = 0.5,
+		domain        = domain_race_religion_income,
+		constraints   = constraints_race_religion_income,
+		utility       = utility_race_religion_income,
+		distributions = distribution_race,
 		max_iter      = MAX_ITERATIONS,
-		colormap      = COLORMAP_RACE_RELIGION,
+		colormap      = colormap_race,
 		social_net    = None,
 	)
 	return SchellingModel(model_config)
 
 
 def example_complex_game() -> SchellingModel:
-	GRID_TOPO_DIM     = (20, 20)  # (40, 40)
-	AGENT_AMOUNT      = 350       # 1500
-	DOMAIN_RACE_RELIGION_INCOME : AgentType_Domain = {
+	grid_topo_dim     = (20, 20)  # (40, 40)
+	agent_amount      = 350       # 1500
+	domain_race_religion_income : AgentType_Domain = {
 		"race"     : ["white", "black", "asian"],
 		"religion" : ["christian", "muslim", "jewish"],
 		"income"   : (0, 10000000),
 	}
-	COLORMAP_RACE_RELIGION : AgentType_ColorMap = {
+	colormap_race_religion : AgentType_ColorMap = {
 		"race" : {
 			"white" : "pink",
 			"black" : "brown",
@@ -97,7 +91,7 @@ def example_complex_game() -> SchellingModel:
 			"jewish"    : "blue",
 		}
 	}
-	DISTRIBUTIONS_RACE_RELIGION_INCOME : AgentType_Distributions = {
+	distributions_race_religion_income : AgentType_Distributions = {
 		"race"     : Distribution_Choice_Categories(["white", "black", "asian"]),
 		"religion" : Distribution_CustomDiscrete({
 			"christian" : 0.6,
@@ -106,12 +100,7 @@ def example_complex_game() -> SchellingModel:
 		}),
 		#"income" : Distribution_UniformContinuous(0, 10000000),
 	}
-	AGENT_NATURES : AgentType_NatureProportions = {
-		"random"   : 0.,
-		"stubborn" : 0.,
-		"strategic": 1.,
-	}
-	CONSTRAINTS_RACE_RELIGION_INCOME : AgentType_Constraints | None = None
+	constraints_race_religion_income : AgentType_Constraints | None = None
 
 	def same_race_and_religion_above_all(
 		self_value : AgentType_Vector,
@@ -132,7 +121,7 @@ def example_complex_game() -> SchellingModel:
 			and neighbor["religion"] == self_value["religion"]
 		)
 		ratio_similar = count_similar / count_all if count_all != 0 else 0
-		neighbors_with_similar_income = sum([
+		neighbors_with_similar_income = len([
 			1 for neighbor_value in neighbor_values
 			if abs(log(neighbor_value["income"]) - log(self_value["income"])) <= 0.2  #type:ignore
 		])
@@ -141,19 +130,18 @@ def example_complex_game() -> SchellingModel:
 		return result
 			
 
-	UTILITY_RACE_RELIGION_INCOME : Utility_Scalarized = same_race_and_religion_above_all
 	model_config = SchellingModelConfig_Random(
-		topology      = ("Graph", Topology_GridDiagonals(GRID_TOPO_DIM)),
-		n_agents      = AGENT_AMOUNT,
+		topology      = ("Graph", Topology_GridDiagonals(grid_topo_dim)),
+		n_agents      = agent_amount,
 		move_mode     = "jump",
-		agent_natures = AGENT_NATURES,
+		agent_natures = DEFAULT_AGENT_NATURES,
 		happiness     = 0.5,
-		domain        = DOMAIN_RACE_RELIGION_INCOME,
-		constraints   = CONSTRAINTS_RACE_RELIGION_INCOME,
-		utility       = UTILITY_RACE_RELIGION_INCOME,
-		distributions = DISTRIBUTIONS_RACE_RELIGION_INCOME,
+		domain        = domain_race_religion_income,
+		constraints   = constraints_race_religion_income,
+		utility       = same_race_and_religion_above_all,
+		distributions = distributions_race_religion_income,
 		max_iter      = MAX_ITERATIONS,
-		colormap      = COLORMAP_RACE_RELIGION,
+		colormap      = colormap_race_religion,
 		social_net    = None,
 	)
 	return SchellingModel(model_config)

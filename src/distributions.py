@@ -9,6 +9,8 @@ from src.types import (
 	AgentType_Value_Continuous,
 )
 
+
+
 @dataclass
 class Distribution_CustomDiscrete:
 	proportions : dict[str, float]

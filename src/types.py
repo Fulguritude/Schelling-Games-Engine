@@ -15,6 +15,8 @@ from networkx import (
 )
 from matplotlib.colors import Colormap
 
+
+
 """
 #######################
 General types
@@ -27,10 +29,34 @@ Position = tuple[float, float]
 
 """
 #######################
-Agent-relative types
+Graph types
 #######################
 """
 
+NodeID    = int   # unique identifier for a node in a given graph
+GraphType = Union[ # any valid networkx graph type
+	Graph,
+	DiGraph,
+	MultiGraph,
+	MultiDiGraph,
+]
+GraphType_Literal = Literal[
+	"Graph",
+	"DiGraph",
+	"MultiGraph",
+	"MultiDiGraph",
+]
+
+NodePosDict    = dict[Hashable, Position]
+# example: `pos : NodePosDict = {node: (x, y) for node, (x, y) in zip(graph.nodes(), custom_positions)}`
+LayoutFunction = Callable[[GraphType], NodePosDict]
+
+
+"""
+#######################
+Agent-relative types
+#######################
+"""
 
 AgentID                    = int     # unique identifier for an agent
 AgentType_Name             = str     # name of a given type, e.g., "race", "religion", "income"
@@ -82,7 +108,6 @@ Game types
 #######################
 """
 
-
 MovementMode = Literal[
 	"jump",      # selects free nodes randomly, moves to the first improvement to utility found
 	"swap",      # selects occupied nodes randomly, checks if swap is mutually beneficial, swaps with the first such
@@ -92,6 +117,8 @@ MovementMode = Literal[
 #	"max_mixed", # runs both max_jump and max_swap, picks the best TODO
 #	"mutual_max_swap": #costly, TODO? handle cycles of length > 2 ?
 ]
+Assignment = dict[AgentID, NodeID]
+History    = list[Assignment]
 
 
 """
@@ -137,33 +164,3 @@ Utility_Scalarized = Callable[  # cost-type utility for minimization
 	],
 	float,
 ]
-
-
-
-"""
-#######################
-Graph types
-#######################
-"""
-
-NodeID    = int   # unique identifier for a node in a given graph
-GraphType = Union[ # any valid networkx graph type
-	Graph,
-	DiGraph,
-	MultiGraph,
-	MultiDiGraph,
-]
-NodePosDict    = dict[Hashable, Position]
-# example: `pos : NodePosDict = {node: (x, y) for node, (x, y) in zip(graph.nodes(), custom_positions)}`
-LayoutFunction = Callable[[GraphType], NodePosDict]
-
-Assignment = dict[AgentID, NodeID]
-History    = list[Assignment]
-
-GraphType_Literal = Literal[
-	"Graph",
-	"DiGraph",
-	"MultiGraph",
-	"MultiDiGraph",
-]
-

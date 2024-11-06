@@ -44,11 +44,7 @@ from src.utility         import get_default_utility_scalarized_function
 from src.colors          import get_default_colormap
 from src.config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI
 
-"""
-#######################
-Model types and utils
-#######################
-"""
+
 
 #TODO provide trackability for utility criteria when possible, not just scalarized (?)
 @dataclass

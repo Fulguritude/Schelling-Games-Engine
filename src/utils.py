@@ -37,7 +37,8 @@ def set_nice_level(level):
 		try:
 			os.nice(level)
 			print(f"Set process niceness level to {level}")
-		except PermissionError:
+		except PermissionError as e:
 			print("Permission denied: Unable to set niceness level. Try running with appropriate privileges.")
+			raise e
 	else:
 		print(f"os.nice() is not supported on this operating system ({platform.system()}).")
