@@ -41,8 +41,8 @@ class MainWindow(BoxLayout):
 		self.graph_layout = self.create_graph_canvas()
 		self.add_widget(self.graph_layout)
 
-	# Export utils
 
+	# Export utils
 	@staticmethod
 	def get_export_path(
 		extension : Literal["png", "gif"],
@@ -101,7 +101,7 @@ class MainWindow(BoxLayout):
 
 	def export_gif_plot(self, type_name: AgentType_Name) -> str:
 		fig_paths = []
-		for iter_step in range(self.model.max_iter):
+		for iter_step in range(self.model.max_iter + 1):
 			print(f"Building {iter_step} image for gif...")
 			fig_path = self.export_png_plot_at_iter(iter_step, type_name)
 			fig_paths.append(fig_path)
@@ -111,8 +111,8 @@ class MainWindow(BoxLayout):
 
 	def export_gif_all_plots(self) -> str:
 		fig_paths = []
-		for iter_step in range(self.model.max_iter):
-			print(f"Building {iter_step} images for gif...")
+		for iter_step in range(self.model.max_iter + 1):
+			print(f"Building {iter_step} image for gif...")
 			fig_path = self.export_png_all_plots_at_iter(iter_step, True)
 			fig_paths.append(fig_path)
 		gif_path = MainWindow.get_export_path("gif", None, None, OUT_IMG_DIR)
@@ -128,6 +128,7 @@ class MainWindow(BoxLayout):
 			with_labels = self.with_labels,
 			with_edges  = self.with_edges,
 		)
+
 
 	# Event Bindings
 	def on_export_png(self, instance) -> None:
@@ -168,7 +169,7 @@ class MainWindow(BoxLayout):
 		self.render()
 
 
-	# Dashboard builders
+	# Dashboard widget builders
 	@staticmethod
 	def build_radiobutton(
 		labels     : Iterable[str],
@@ -189,7 +190,6 @@ class MainWindow(BoxLayout):
 			radiobutton_layout.add_widget(button)
 		return radiobutton_layout
 
-
 	def build_export_buttons(self) -> BoxLayout:
 		export_layout  = BoxLayout(orientation='horizontal')
 		export_png     = Button(text="Export PNG")
@@ -205,7 +205,6 @@ class MainWindow(BoxLayout):
 		export_layout.add_widget(export_gif)
 		export_layout.add_widget(export_gif_all)
 		return export_layout
-
 
 	def build_toggles(self) -> BoxLayout:
 		toggles_layout     = BoxLayout(orientation='horizontal')

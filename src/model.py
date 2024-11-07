@@ -160,6 +160,7 @@ class SchellingModel:
 			"Y_edge_N_label" : {},
 			"Y_edge_Y_label" : {},
 		}
+		self.nodes_pos = self.topology.get_layout(self.topology.graph)
 
 
 	@staticmethod
@@ -325,15 +326,17 @@ class SchellingModel:
 		with_edges  : bool,
 	) -> Figure:
 		# https://networkx.org/documentation/stable/reference/drawing.html
+
+		# if the figure has already been calculated, return it
 		config_key : ConfigedFigureHistories_Key = f"{'N' if with_edges else 'Y'}_edge_{'N' if with_labels else 'Y'}_label"  # type:ignore
 		if type_name in self.figures[config_key]:
 			if iter_step in self.figures[config_key][type_name]:
 				return self.figures[config_key][type_name][iter_step]
 		else:
 			self.figures[config_key][type_name] = {}
-		graph = self.topology.graph.copy(as_view=False)
+		graph = self.topology.graph.copy(as_view = True)
 		if not nodes_pos:
-			nodes_pos = self.topology.get_layout(graph)
+			nodes_pos = self.nodes_pos
 		labels = {
 			node_id : self.history[iter_step][node_id] if node_id in self.history[iter_step] else ""
 			for node_id in graph.nodes()
@@ -395,7 +398,7 @@ class SchellingModel:
 			iter_step   : int,
 			type_name   : AgentType_Name,
 		) -> None:
-			print(f"Starting thread for {type_name} at iteration {iter_step}")
+			print(f"Starting calc for {type_name} at iteration {iter_step}")
 			sleep(DEFAULT_ANTILAG_SLEEP)
 			self.get_figure(
 				iter_step   = iter_step,
@@ -404,11 +407,11 @@ class SchellingModel:
 				with_labels = with_labels,
 				with_edges  = with_edges,
 			)
-			print(f"Completed thread for {type_name} at iteration {iter_step}")
+			print(f"Completed calc for {type_name} at iteration {iter_step}")
 			sleep(DEFAULT_ANTILAG_SLEEP)
 		# TODO, if we use threading, needs to be in smaller batches
 		# threads : list[Thread] = []
-		for iter_step in range(self.max_iter):
+		for iter_step in range(self.max_iter + 1):
 			for type_name in type_names:
 				draw_graph(iter_step, type_name)
 		#		draw_graph_configured = lambda : draw_graph(iter_step, type_name)

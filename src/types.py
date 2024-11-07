@@ -5,6 +5,7 @@ from typing import (
 	Literal,
 	TypedDict,
 	Hashable,
+	TypeVar,
 )
 
 from networkx import (
@@ -151,11 +152,30 @@ Utility_Criterion_Continuous = Callable[
 	],
 	float,
 ]
-Utility_Criterion = Union[
-	Utility_Criterion_AgentID,
-	Utility_Criterion_Discrete,
-	Utility_Criterion_Continuous,
+
+GenericAgentValue = TypeVar(
+	"GenericAgentValue",
+	bound = Union[
+		AgentType_Value_Discrete,
+		AgentType_Value_Continuous,
+		AgentType_Vector,
+		AgentID
+	]
+)
+# Utility_Criterion = Union[
+# 	Utility_Criterion_AgentID,
+# 	Utility_Criterion_Discrete,
+# 	Utility_Criterion_Continuous,
+# ]
+Utility_Criterion = Callable[
+	[
+		GenericAgentValue,
+		list[GenericAgentValue],
+		Any,
+	],
+	float,
 ]
+
 Utility_Scalarized = Callable[  # cost-type utility for minimization
 	[
 		AgentType_Vector,       # current node's defining info
