@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Union, cast
+from typing import Union, Iterable, cast
 from dataclasses import dataclass
+from threading import Thread, Lock
 import random
 
 from matplotlib.pyplot import Figure, subplots
@@ -27,6 +28,9 @@ from src.types import (
 	Assignment,
 	Utility_Scalarized,
 	MovementMode,
+	DomainFigureHistories,
+	ConfiguredFigureHistories,
+	ConfigedFigureHistories_Key,
 )
 from src.topology import (
 	Topology,
@@ -45,6 +49,8 @@ from src.colors          import get_default_colormap
 from src.config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI
 
 
+
+GRAPH_HISTORY_MUTEX = Lock()
 
 #TODO provide trackability for utility criteria when possible, not just scalarized (?)
 @dataclass
@@ -92,7 +98,7 @@ class SchellingModel:
 		self.history    : list[Assignment]
 		self.colormap   : AgentType_ColorMap
 		self.social_net : GraphType | None
-		self.figures	: dict[AgentType_Name, dict[int, Figure]]
+		self.figures	: ConfiguredFigureHistories
 		match config:
 			case SchellingModelConfig_Explicit(
 				topology,
@@ -146,7 +152,12 @@ class SchellingModel:
 			raise ValueError("SchellingModel.__init__(): Not enough nodes for all agents")
 		self.equilibrium_found = False
 		self.update_agents_with_assignment(self.history[-1])
-		self.figures = {}
+		self.figures = {
+			"N_edge_N_label" : {},
+			"N_edge_Y_label" : {},
+			"Y_edge_N_label" : {},
+			"Y_edge_Y_label" : {},
+		}
 
 
 	@staticmethod
@@ -312,11 +323,12 @@ class SchellingModel:
 		with_edges  : bool,
 	) -> Figure:
 		# https://networkx.org/documentation/stable/reference/drawing.html
-		if type_name in self.figures:
-			if iter_step in self.figures[type_name]:
-				return self.figures[type_name][iter_step]
+		config_key : ConfigedFigureHistories_Key = f"{'N' if with_edges else 'Y'}_edge_{'N' if with_labels else 'Y'}_label"  # type:ignore
+		if type_name in self.figures[config_key]:
+			if iter_step in self.figures[config_key][type_name]:
+				return self.figures[config_key][type_name][iter_step]
 		else:
-			self.figures[type_name] = {}
+			self.figures[config_key][type_name] = {}
 		graph = self.topology.graph.copy(as_view=False)
 		if not nodes_pos:
 			nodes_pos = self.topology.get_layout(graph)
@@ -366,8 +378,44 @@ class SchellingModel:
 			font_size   = 5,
 		)
 		ax.set_title(f"{type_name}")
-		self.figures[type_name][iter_step] = fig
+		GRAPH_HISTORY_MUTEX.acquire()
+		self.figures[config_key][type_name][iter_step] = fig
+		GRAPH_HISTORY_MUTEX.release()
 		return fig
+
+	def build_all_figures_from_config(
+		self,
+		type_names  : Iterable[AgentType_Name],
+		with_labels : bool,
+		with_edges  : bool,
+	) -> None:
+		threads = []
+		for iter_step in range(self.max_iter):
+			for type_name in type_names:
+				def draw_graph():
+					print(f"Starting thread for {type_name} at iteration {iter_step}")
+					self.get_figure(
+						iter_step   = iter_step,
+						type_name   = type_name,
+						nodes_pos   = None,
+						with_labels = with_labels,
+						with_edges  = with_edges,
+					)
+					print(f"Completed thread for {type_name} at iteration {iter_step}")
+				graph_thread = Thread(target=draw_graph, args=())
+				graph_thread.start()
+				threads.append(graph_thread)
+		for thread in threads:
+			thread.join()
+
+
+	def get_figure_history_from_config(
+		self,
+		with_labels : bool,
+		with_edges  : bool,
+	) -> DomainFigureHistories:
+		config_key : ConfigedFigureHistories_Key = f"{'N' if with_edges else 'Y'}_edge_{'N' if with_labels else 'Y'}_label"  # type:ignore
+		return self.figures[config_key]
 
 	# TODO
 	def compute_metrics(self) -> dict:

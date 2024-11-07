@@ -123,6 +123,15 @@ class MainWindow(BoxLayout):
 		export_gif_from_pngs(fig_paths, gif_path)
 		return gif_path
 
+	def run_build_all_graphs_from_config(
+		self,
+		type_names  : Iterable[AgentType_Name],
+	) -> None:
+		self.model.build_all_figures_from_config(
+			type_names  = type_names,
+			with_labels = self.with_labels,
+			with_edges  = self.with_edges,
+		)
 
 	# Event Bindings
 	def on_export_png(self, instance) -> None:
@@ -135,10 +144,12 @@ class MainWindow(BoxLayout):
 		self.export_png_all_plots_at_iter(iter_step, is_tmp = False)
 
 	def on_export_gif(self, instance) -> None:
+		self.run_build_all_graphs_from_config([self.get_selected_type()])
 		type_name = self.get_selected_type()
 		self.export_gif_plot(type_name)
 
 	def on_export_gif_all(self, instance) -> None:
+		self.run_build_all_graphs_from_config(self.model.domain.keys())
 		self.export_gif_all_plots()
 
 	def on_iter_value_change(self, instance, value):
@@ -149,13 +160,11 @@ class MainWindow(BoxLayout):
 	def on_toggle_labels(self, instance):
 		self.with_labels        = not self.with_labels
 		self.toggle_labels.text = "Show labels" if not self.with_labels else "Hide labels"
-		self.model.figures      = {}  # TODO better way to force rerender through cache invalidation
 		self.render()
 
 	def on_toggle_edges(self, instance):
 		self.with_edges        = not self.with_edges
 		self.toggle_edges.text = "Show edges"   if not self.with_edges  else "Hide edges"
-		self.model.figures     = {}  # TODO better way to force rerender through cache invalidation
 		self.render()
 
 	def on_type_radio_selected(self, instance):

@@ -14,7 +14,7 @@ from networkx import (
 	MultiDiGraph,
 )
 from matplotlib.colors import Colormap
-
+from matplotlib.pyplot import Figure
 
 
 """
@@ -164,3 +164,30 @@ Utility_Scalarized = Callable[  # cost-type utility for minimization
 	],
 	float,
 ]
+
+
+"""
+#######################
+Render types
+#######################
+"""
+
+FigureHistory             = dict[int, Figure]
+DomainFigureHistories     = dict[AgentType_Name, FigureHistory]
+ConfiguredFigureHistories = TypedDict(
+	"ConfiguredFigureHistories",
+	{
+		"N_edge_N_label" : DomainFigureHistories,
+		"N_edge_Y_label" : DomainFigureHistories,
+		"Y_edge_N_label" : DomainFigureHistories,
+		"Y_edge_Y_label" : DomainFigureHistories,
+	}
+)
+
+ConfigedFigureHistories_Key = Literal[
+	"N_edge_N_label",
+	"N_edge_Y_label",
+	"Y_edge_N_label",
+	"Y_edge_Y_label",
+]
+

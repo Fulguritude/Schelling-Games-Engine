@@ -63,7 +63,7 @@ I would also like, with time, to add a "utility color display" option. A "legend
 
 #### Import/export
 
-I made a png and gif export feature. However, the latter is pretty slow and takes a LOT of resources from the machine, generally freezing it except for the step logging print... You can export a view of a single type or all types simultaneously.
+I made a png and gif export feature. However, the latter is pretty slow and takes a LOT of resources from the machine, generally freezing it except for the step logging print... You can export a view of a single type or all types simultaneously. The source of the issue seems to be the nx.draw function: I tried `os.nice`, I tried polluting with sleep (even pretty long ones), I tried multithreading.
 
 I've considered a "simulation save/load feature", that I might implement sometime.
 
@@ -73,7 +73,9 @@ I've provided a high amount of semantic typing to make code more legible, as wel
 
 The code does, however, need a big refactor to make it multiple files, which would be preferable.
 
-The overall pipeline has been thoroughly tested, but a lot of the optional features (some graph types, some distributions, etc.) have not. With too many iterations or too big a size (topology, amount of agents), the app can get slowed down or launch "App not responding; Wait or Force Quit" pop-ups.
+The overall pipeline has been thoroughly tested, but a lot of the optional features (some graph types, some distributions, etc.) have not.
+
+With too many iterations or too big a size (topology, amount of agents), the app can get slowed down or launch "App not responding; Wait or Force Quit" pop-ups.
 
 Also, Hide/Show labels display sometimes doesn't show all labels.
 
