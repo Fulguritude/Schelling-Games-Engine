@@ -57,16 +57,17 @@ GRAPH_HISTORY_MUTEX = Lock()
 #TODO provide trackability for utility criteria when possible, not just scalarized (?)
 @dataclass
 class SchellingModelConfig_Explicit:
-	topology    : Topology
-	agents      : list[Agent]
-	domain      : AgentType_Domain
-	move_mode   : MovementMode                | None
-	constraints : AgentType_Constraints       | None
-	utility     : Utility_Scalarized          | None
-	assignment  : Assignment                  | None
-	max_iter    : int
-	colormap    : AgentType_ColorMap          | None
-	social_net  : GraphType                   | None
+	topology    : Topology                            # predefined graph structure for the model
+	agents      : list[Agent]                         # list of predefined agents
+	domain      : AgentType_Domain                    # domain of possible values for each agent type
+	move_mode   : MovementMode                | None  # how agents move each turn
+	constraints : AgentType_Constraints       | None  # optional domain constraints over agent types
+	utility     : Utility_Scalarized          | None  # we recommend a full definition, but can be partially defined, the rest of the domain will default
+	assignment  : Assignment                  | None  # arbitrary start positions of the agents
+	max_iter    : int                                 # amount of turns in the Schelling game
+	colormap    : AgentType_ColorMap          | None  # can be partially defined, the rest of the domain will default
+	social_net  : GraphType                   | None  # extra graph for friend/enemy, topological distance games etc
+	node_pos    : NodePosDict                 | None  # optional custom visual layout for graph
 
 @dataclass
 class SchellingModelConfig_Random:
@@ -78,10 +79,11 @@ class SchellingModelConfig_Random:
 	move_mode     : MovementMode                | None
 	constraints   : AgentType_Constraints       | None
 	utility       : Utility_Scalarized          | None
-	distributions : AgentType_Distributions     | None  # can be partially defined, the rest of the domain will default
+	distributions : AgentType_Distributions     | None    # can be partially defined, the rest of the domain will default
 	max_iter      : int
 	colormap      : AgentType_ColorMap          | None
 	social_net    : GraphType                   | None
+	node_pos      : NodePosDict                 | None
 
 SchellingModelConfig = Union[
 	SchellingModelConfig_Explicit,
@@ -101,6 +103,7 @@ class SchellingModel:
 		self.colormap   : AgentType_ColorMap
 		self.social_net : GraphType | None
 		self.figures	: ConfiguredFigureHistories
+		self.nodes_pos  : NodePosDict
 		match config:
 			case SchellingModelConfig_Explicit(
 				topology,
@@ -113,6 +116,7 @@ class SchellingModel:
 				max_iter,
 				colormap,
 				social_net,
+				node_pos,
 			):
 				self.topology   = topology
 				self.domain     = domain
@@ -124,6 +128,7 @@ class SchellingModel:
 				self.agents     = agents
 				self.colormap   = get_default_colormap(domain, colormap)
 				self.social_net = social_net
+				self.nodes_pos  = self.topology.get_layout(self.topology.graph) if node_pos is None else node_pos
 			case SchellingModelConfig_Random(
 				topology,
 				n_agents,
@@ -137,6 +142,7 @@ class SchellingModel:
 				max_iter,
 				colormap,
 				social_net,
+				node_pos,
 			):
 				self.topology   = Topology(TopologyConfig_Generated(*topology))
 				self.domain     = domain
@@ -148,6 +154,7 @@ class SchellingModel:
 				self.agents     = self.generate_agents(n_agents, distributions, agent_natures, happiness_threshold)
 				self.colormap   = get_default_colormap(domain, colormap)
 				self.social_net = social_net
+				self.nodes_pos  = self.topology.get_layout(self.topology.graph) if node_pos is None else node_pos
 			case _:
 				raise ValueError("Invalid SchellingModelConfig")
 		if len(self.agents) > len(self.topology.graph.nodes()):
@@ -160,7 +167,6 @@ class SchellingModel:
 			"Y_edge_N_label" : {},
 			"Y_edge_Y_label" : {},
 		}
-		self.nodes_pos = self.topology.get_layout(self.topology.graph)
 
 
 	@staticmethod
@@ -321,7 +327,6 @@ class SchellingModel:
 		iter_step   : int,
 		type_name   : AgentType_Name,
 	#	type_mode   : Literal["type", "utility"],
-		nodes_pos   : NodePosDict | None,
 		with_labels : bool,
 		with_edges  : bool,
 	) -> Figure:
@@ -335,8 +340,6 @@ class SchellingModel:
 		else:
 			self.figures[config_key][type_name] = {}
 		graph = self.topology.graph.copy(as_view = True)
-		if not nodes_pos:
-			nodes_pos = self.nodes_pos
 		labels = {
 			node_id : self.history[iter_step][node_id] if node_id in self.history[iter_step] else ""
 			for node_id in graph.nodes()
@@ -372,7 +375,7 @@ class SchellingModel:
 		fig, ax = subplots(figsize = DEFAULT_FIGSIZE, dpi = DEFAULT_DPI)
 		draw(
 			self.topology.graph,
-			nodes_pos, 
+			self.nodes_pos,
 			ax          = ax,
 			with_labels = with_labels,
 			labels      = labels,
@@ -403,7 +406,6 @@ class SchellingModel:
 			self.get_figure(
 				iter_step   = iter_step,
 				type_name   = type_name,
-				nodes_pos   = None,
 				with_labels = with_labels,
 				with_edges  = with_edges,
 			)

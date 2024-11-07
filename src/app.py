@@ -76,7 +76,6 @@ class MainWindow(BoxLayout):
 		fig = self.model.get_figure(
 			iter_step   = iter_step,
 			type_name   = type_name,
-			nodes_pos   = None,
 			with_labels = self.with_labels,
 			with_edges  = self.with_edges,
 		)
@@ -102,7 +101,7 @@ class MainWindow(BoxLayout):
 	def export_gif_plot(self, type_name: AgentType_Name) -> str:
 		fig_paths = []
 		for iter_step in range(self.model.max_iter + 1):
-			print(f"Building {iter_step} image for gif...")
+			print(f"Building image {iter_step} out of {self.model.max_iter} for gif...")
 			fig_path = self.export_png_plot_at_iter(iter_step, type_name)
 			fig_paths.append(fig_path)
 		gif_path = MainWindow.get_export_path("gif", None, type_name, OUT_IMG_DIR)
@@ -112,7 +111,7 @@ class MainWindow(BoxLayout):
 	def export_gif_all_plots(self) -> str:
 		fig_paths = []
 		for iter_step in range(self.model.max_iter + 1):
-			print(f"Building {iter_step} image for gif...")
+			print(f"Building image {iter_step} out of {self.model.max_iter} for gif...")
 			fig_path = self.export_png_all_plots_at_iter(iter_step, True)
 			fig_paths.append(fig_path)
 		gif_path = MainWindow.get_export_path("gif", None, None, OUT_IMG_DIR)
@@ -242,7 +241,6 @@ class MainWindow(BoxLayout):
 		fig = self.model.get_figure(
 			iter_step   = self.get_iter_step(),
 			type_name   = self.get_selected_type(),
-			nodes_pos   = None,
 			with_labels = self.with_labels,
 			with_edges  = self.with_edges,
 		)

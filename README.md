@@ -15,13 +15,18 @@ Where our work goes further than the previous explainer's simulator is by consid
 I like agent-based models. I also like the interaction of discrete and continuous mathematics. I found this subject interesting. I did this over a couple of days.
 
 I tried to emphasize three things above all:
+
 - make the code modular to reinforce composability
+
 - make my code as configurable as possible
+
 - not sacrifice semantic type-hinting
 
 Secondary objectives:
+
 - have the app be sufficiently user-friendly and intuitive
-- have it not be painfully slow
+
+- have it not be painfully slow (in the end, it's decently fast, except for export)
 
 ## Installation & execution
 
@@ -66,6 +71,8 @@ I could probably implement a cycle-recognition halting condition as well, withou
 
 You can select a topology from a bunch of defaults, or add custom graphs. This includes stars, trees, toroids, cubes, etc. Technically, you can also turn these into MultiGraphs, DiGraphs, MultiDiGraphs, though only the first of these could eventually make sense as-is, and I haven't seen uses of it in the literature.
 
+You can also provide a custom visual layout for nodes.
+
 I also did not implement ultragraphs (implementation relying on DiGraphs which wasn't neatly compatible, and would have been much more challenging). However, I do want to do so at some point, in particular to model one specific case: international migration with contraints based on language or cultural norms.
 
 #### Highly configurable agents
@@ -84,9 +91,7 @@ I would also like, with time, to add a "utility color display" option.
 
 #### Import/export
 
-I made a png and gif export feature, and you can export a view of a single type or all types simultaneously. However, the gif export is pretty slow and takes a LOT of resources from the machine, generally freezing it except for the step logging print...
-
-The source of the issue seems to be the `nx.draw` function: I tried `os.nice`, I tried polluting with `sleep` (even pretty long ones), I tried multithreading. None of that works: I suspect networkx is just not that well implemented. I do have a rendered graph caching mechanism that makes things a bit better. Maybe one day it'll make me mad enough that I make a GPU-based Python graph library...
+I made a png and gif export feature, and you can export a view of a single type or all types simultaneously. However, the gif export is pretty slow and takes a LOT of resources from the machine, generally even freezing other apps, except for the step logging print... I think both `nx.draw` and Kivy are responsible to some extent.
 
 I've considered a "simulation save/load feature", that I might implement sometime.
 
@@ -98,8 +103,6 @@ I've provided a high amount of semantic typing to make code more legible, as wel
 The overall pipeline has been thoroughly tested, but a lot of the optional features (some graph types, some distributions, etc.) have not.
 
 With too many iterations or too big a size (topology, amount of agents), the app can get slowed down or launch "App not responding; Wait or Force Quit" pop-ups.
-
-I have beginnings of a "custom node position config" feature, but it's not fully implemented.
 
 Also, Hide/Show labels display sometimes doesn't show all labels.
 
@@ -123,8 +126,6 @@ PRs, comments and issues are welcome. I'd ideally like this to be useful for sci
 
 - implement a "simulation save/load feature"
 
-- render via GPU
-
 - clean up Kivy debug output
 
 - fix Hide/Show labels display
@@ -132,6 +133,7 @@ PRs, comments and issues are welcome. I'd ideally like this to be useful for sci
 - add more tests and examples
 
 - maybe improve topology and distribution features
+
 
 ## Example gif
 

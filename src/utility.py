@@ -19,7 +19,6 @@ from src.types import (
 	Utility_Criterion_Continuous,
 	GenericAgentValue,
 )
-from src.config_defaults import DEFAULT_BAD_UTILITY
 
 
 
@@ -108,7 +107,7 @@ def builder_utility_similarneighbor(
 	condition       : Callable[[GenericAgentValue, GenericAgentValue], bool],
 	summand_mapping : Callable[[GenericAgentValue, GenericAgentValue], float],
 	ratio_func      : Callable[[int | float, int | float], float] | None,
-	weight          : float | None,
+	output_mapping	: Callable[[float], float] | None,
 ) -> Utility_Criterion:
 	"""
 	Builds a utility function that returns a float from the number of neighbors
@@ -121,8 +120,9 @@ def builder_utility_similarneighbor(
 	and maps is somehow, can be used for specific weighing
 	- ratio_func: a function that takes the number of similar neighbors vs all neighbors
 	(used to handle zero or whether to count the central agent itself)
-	- weight: a float that can be used to multiply the result with, in order to better
-	manipulate multi-criteria utility
+	- output_mapping: a function that can be used to change result, in order to better
+	manipulate multi-criteria utility (e.g., for weighing), or to implement things like
+	lower/upper bound thresholds, etc.
 	"""
 	if ratio_func is None:
 		def utility_sameneighbor_absolute(
@@ -131,7 +131,7 @@ def builder_utility_similarneighbor(
 			context       : None,
 		) -> float:
 			count  = any_sum(self_value, neighbor_vals, condition, summand_mapping)
-			result = count if weight is None else weight * count
+			result = output_mapping(count) if output_mapping is not None else count
 			return result
 		result = utility_sameneighbor_absolute
 
@@ -144,7 +144,7 @@ def builder_utility_similarneighbor(
 			count_all  = len(neighbor_vals)
 			count_same = any_sum(self_value, neighbor_vals, condition, summand_mapping)
 			ratio      = ratio_func(count_same, count_all)
-			result     = ratio if weight is None else weight * ratio
+			result     = output_mapping(ratio) if output_mapping is not None else ratio
 			return result
 		result = utility_sameneighbor_relative
 	return result
@@ -154,10 +154,10 @@ def builder_utility_neighborinrange(
 	summand_mapping : Callable[[AgentType_Value_Continuous, AgentType_Value_Continuous], float],
 	distance_func   : Callable[[AgentType_Value_Continuous, AgentType_Value_Continuous], float],
 	max_dist        : float,
-	weight          : float | None,
+	output_mapping  : Callable[[float], float] | None,
 ) -> Utility_Criterion_Continuous:
 	condition = builder_condition_in_range(distance_func, max_dist)
-	result = builder_utility_similarneighbor(condition, summand_mapping, ratio_func, weight)
+	result = builder_utility_similarneighbor(condition, summand_mapping, ratio_func, output_mapping)
 	return result
 
 def builder_utility_friendandenemies(
@@ -221,7 +221,7 @@ def get_default_utility_scalarized_function(
 				condition       = lambda x, y: x == y,  #type:ignore
 				summand_mapping = lambda x, y: 1.0,
 				ratio_func      = ratio_func_basic,
-				weight          = None,
+				output_mapping  = None,
 			)
 			if isinstance(v, list) else
 			builder_utility_neighborinrange(
@@ -229,7 +229,7 @@ def get_default_utility_scalarized_function(
 				summand_mapping = lambda x, y: 1.0,
 				distance_func   = distance_absolute,
 				max_dist        = 1,
-				weight          = None,
+				output_mapping  = None,
 			)
 		)
 		for k, v in domain.items()

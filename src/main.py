@@ -65,6 +65,7 @@ def example_simple_game() -> SchellingModel:
 		max_iter      = MAX_ITERATIONS,
 		colormap      = colormap_race,
 		social_net    = None,
+		node_pos      = None,
 	)
 	return SchellingModel(model_config)
 
@@ -141,6 +142,7 @@ def example_complex_game() -> SchellingModel:
 		max_iter      = MAX_ITERATIONS,
 		colormap      = colormap_race_religion,
 		social_net    = None,
+		node_pos      = None,
 	)
 	return SchellingModel(model_config)
 
