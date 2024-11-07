@@ -2,7 +2,9 @@ from __future__ import annotations
 from typing import Union, Iterable, cast
 from dataclasses import dataclass
 from threading import Thread, Lock
+from time import sleep
 import random
+
 
 from matplotlib.pyplot import Figure, subplots
 from networkx          import draw
@@ -46,7 +48,7 @@ from src.distributions import (
 from src.agent           import Agent
 from src.utility         import get_default_utility_scalarized_function
 from src.colors          import get_default_colormap
-from src.config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI
+from src.config_defaults import DEFAULT_FIGSIZE, DEFAULT_DPI, DEFAULT_ANTILAG_SLEEP
 
 
 
@@ -389,24 +391,32 @@ class SchellingModel:
 		with_labels : bool,
 		with_edges  : bool,
 	) -> None:
-		threads = []
+		def draw_graph(
+			iter_step   : int,
+			type_name   : AgentType_Name,
+		) -> None:
+			print(f"Starting thread for {type_name} at iteration {iter_step}")
+			sleep(DEFAULT_ANTILAG_SLEEP)
+			self.get_figure(
+				iter_step   = iter_step,
+				type_name   = type_name,
+				nodes_pos   = None,
+				with_labels = with_labels,
+				with_edges  = with_edges,
+			)
+			print(f"Completed thread for {type_name} at iteration {iter_step}")
+			sleep(DEFAULT_ANTILAG_SLEEP)
+		# TODO, if we use threading, needs to be in smaller batches
+		# threads : list[Thread] = []
 		for iter_step in range(self.max_iter):
 			for type_name in type_names:
-				def draw_graph():
-					print(f"Starting thread for {type_name} at iteration {iter_step}")
-					self.get_figure(
-						iter_step   = iter_step,
-						type_name   = type_name,
-						nodes_pos   = None,
-						with_labels = with_labels,
-						with_edges  = with_edges,
-					)
-					print(f"Completed thread for {type_name} at iteration {iter_step}")
-				graph_thread = Thread(target=draw_graph, args=())
-				graph_thread.start()
-				threads.append(graph_thread)
-		for thread in threads:
-			thread.join()
+				draw_graph(iter_step, type_name)
+		#		draw_graph_configured = lambda : draw_graph(iter_step, type_name)
+		# 		graph_thread = Thread(target=draw_graph_configured, args=())
+		# 		graph_thread.start()
+		# 		threads.append(graph_thread)
+		# for thread in threads:
+		# 	thread.join()
 
 
 	def get_figure_history_from_config(

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Callable, Iterable, Literal
 from os.path import sep
-from time import sleep
 
 from matplotlib.pyplot      import Figure
 from kivy.app               import App
@@ -21,7 +20,6 @@ from src.config_defaults import (
 	OUT_IMG_DIR,
 	DEFAULT_FIGSIZE,
 	DEFAULT_PADDING,
-	DEFAULT_ANTILAG_SLEEP,
 )
 
 class MainWindow(BoxLayout):
@@ -105,7 +103,6 @@ class MainWindow(BoxLayout):
 		fig_paths = []
 		for iter_step in range(self.model.max_iter):
 			print(f"Building {iter_step} image for gif...")
-			sleep(DEFAULT_ANTILAG_SLEEP)
 			fig_path = self.export_png_plot_at_iter(iter_step, type_name)
 			fig_paths.append(fig_path)
 		gif_path = MainWindow.get_export_path("gif", None, type_name, OUT_IMG_DIR)
@@ -116,7 +113,6 @@ class MainWindow(BoxLayout):
 		fig_paths = []
 		for iter_step in range(self.model.max_iter):
 			print(f"Building {iter_step} images for gif...")
-			sleep(DEFAULT_ANTILAG_SLEEP)
 			fig_path = self.export_png_all_plots_at_iter(iter_step, True)
 			fig_paths.append(fig_path)
 		gif_path = MainWindow.get_export_path("gif", None, None, OUT_IMG_DIR)

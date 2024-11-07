@@ -63,9 +63,10 @@ I would also like, with time, to add a "utility color display" option. A "legend
 
 #### Import/export
 
-I made a png and gif export feature. However, the latter is pretty slow and takes a LOT of resources from the machine, generally freezing it except for the step logging print... You can export a view of a single type or all types simultaneously. The source of the issue seems to be the nx.draw function: I tried `os.nice`, I tried polluting with sleep (even pretty long ones), I tried multithreading.
+I made a png and gif export feature. However, the latter is pretty slow and takes a LOT of resources from the machine, generally freezing it except for the step logging print... You can export a view of a single type or all types simultaneously. The source of the issue seems to be the `nx.draw` function: I tried `os.nice`, I tried polluting with `sleep` (even pretty long ones), I tried multithreading. None of that works, I suspect networkx is just not that well implemented. Maybe one day it'll make me mad enough that I make a GPU-based Python graph library...
 
 I've considered a "simulation save/load feature", that I might implement sometime.
+
 
 ## Style & quality
 
@@ -77,11 +78,11 @@ The overall pipeline has been thoroughly tested, but a lot of the optional featu
 
 With too many iterations or too big a size (topology, amount of agents), the app can get slowed down or launch "App not responding; Wait or Force Quit" pop-ups.
 
+I have beginnings of a "custom node position config" feature, but it's not fully implemented.
+
 Also, Hide/Show labels display sometimes doesn't show all labels.
 
-Finally, there's a small known bug where the size of graph figures that have been displayed is affected by Kivy, and stays affected when exported.
-
-I haven't managed to cleanly remove Kivy's debug output, either.
+Finally, I haven't managed to cleanly remove Kivy's debug output, either.
 
 
 ## Contributing
